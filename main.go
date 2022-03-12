@@ -26,16 +26,14 @@ func stripes(u, v float64) utils.NormalizedColor {
 	}
 }
 
-func circles(u, v float64) utils.NormalizedColor {
-	cx := 0.5
-	cy := 0.5
-	dx := cx - u
-	dy := cy - v
-	r := .25
-	if point := dx*dx + dy*dy; point <= r*r {
+func circles(uv utils.Vec2) utils.NormalizedColor {
+	center := utils.Vec2{X: 0.5, Y: 0.5}
+	diff := center.Sub(&uv)
+	radius := .25
+	if math.Pow(diff.Len(), 2) <= radius*radius {
 		return utils.NormalizedColor{R: 1.0}
 	}
-	return utils.NormalizedColor{R: 0.0}
+	return utils.NormalizedColor{R: 1.0, G: 1.0, B: 1.0}
 }
 
 func main() {
@@ -49,7 +47,7 @@ func main() {
 		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 			u := float64(x) / float64(width)
 			v := float64(y) / float64(height)
-			clr := circles(u, v)
+			clr := circles(utils.Vec2{X: u, Y: v})
 			img.Set(x, y, clr)
 		}
 	}
