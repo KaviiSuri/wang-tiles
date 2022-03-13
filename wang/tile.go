@@ -1,7 +1,6 @@
 package wang
 
 import (
-	"fmt"
 	"image"
 	"math"
 
@@ -23,11 +22,6 @@ func NewTile(bltr uint8, tileWidth, tileHeight int) Tile {
 			clr := wangFragmentShader(bltr, linalg.NewVec(u, v))
 
 			img.Set(x, y, clr)
-			//r, g, b, a := clr.RGBA()
-			//aR, aG, aB, aA := img.At(x, y).RGBA()
-			//if r != aR || b != aB || g != aG || a != aA {
-			//fmt.Printf("Mismatch r(%v, %v) g(%v, %v) b(%v, %v) a(%v, %v)\n", r, aR, g, aG, b, aB, a, aA)
-			//}
 		}
 	}
 
@@ -43,8 +37,8 @@ func NewTile(bltr uint8, tileWidth, tileHeight int) Tile {
 func wangFragmentShader(bltr uint8, uv linalg.Vec) color.Normalized {
 	radius := 0.5
 	colors := []linalg.Vec{
-		linalg.NewVec(1.0, 1.0, 0.0), // 0
-		linalg.NewVec(1.0, 0.0, 1.0), // 1
+		linalg.NewVec(1.0, 0.0, 0.0), // 0
+		linalg.NewVec(0.0, 1.0, 1.0), // 1
 	}
 	sides := []linalg.Vec{
 		linalg.NewVec(1.0, 0.5), // RIGHT
@@ -55,12 +49,14 @@ func wangFragmentShader(bltr uint8, uv linalg.Vec) color.Normalized {
 	result := linalg.NewSizedVec(3, 0.0)
 	for _, point := range sides {
 		blendFactor := 1.0 - math.Min((linalg.Sub(point, uv).Len()/radius), 1.0)
-		fmt.Println(" ", linalg.Sub(point, uv).Len()/0.5)
-		clr := colors[bltr&1]
-		newClr := linalg.Add(result, linalg.Mul(clr, linalg.NewSizedVec(3, blendFactor)))
-		result = linalg.Min(linalg.NewSizedVec(3, 1.0), newClr)
+		//clr := colors[bltr&1]
+		//newClr := linalg.Add(result, linalg.Mul(clr, linalg.NewSizedVec(3, blendFactor)))
+		//result = linalg.Min(linalg.NewSizedVec(3, 1.0), newClr)
+		result = linalg.Lerp(result, colors[bltr&1], linalg.NewSizedVec(3, blendFactor))
 		bltr = bltr >> 1
 	}
-	fmt.Println(result)
+	result = linalg.Map(result, func(a float64, i int) float64 {
+		return math.Pow(a, 1.0/2.2)
+	})
 	return color.NewNormalizedFromVec(result)
 }
