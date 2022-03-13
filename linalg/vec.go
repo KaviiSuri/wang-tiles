@@ -116,11 +116,10 @@ func Lerp(v, o, t Vec) Vec {
 	})
 }
 
-func checkEqualSize(vectors ...Vec) {
-	prev := vectors[0]
-	for i := 1; i < len(vectors); i++ {
-		if prev.Size != vectors[i].Size {
-			log.Fatalf("Vectors Should be of the same size: %v != %v", prev.Size, vectors[i].Size)
+func checkEqualSize(v Vec, vectors ...Vec) {
+	for _, o := range vectors {
+		if v.Size != o.Size {
+			log.Fatalf("Vectors Should be of the same size: %v != %v", v.Size, o.Size)
 		}
 	}
 }
