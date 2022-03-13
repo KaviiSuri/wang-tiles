@@ -1,4 +1,6 @@
-package utils
+package internal
+
+import "github.com/KaviiSuri/wang-tiles/linalg"
 
 type NormalizedColor struct {
 	R, G, B, A float64
@@ -12,7 +14,7 @@ func (n NormalizedColor) RGBA() (r, g, b, a uint32) {
 	return
 }
 
-func NewNormalizedColorFromVec(v Vec) NormalizedColor {
+func NewNormalizedColorFromVec(v linalg.Vec) NormalizedColor {
 	components := []float64{0.0, 0.0, 0.0, 0.0}
 
 	for i, val := range v.Values {

@@ -1,4 +1,4 @@
-package utils
+package linalg
 
 import (
 	"log"
