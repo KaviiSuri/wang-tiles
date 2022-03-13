@@ -22,6 +22,7 @@ This project is done in phases (again, very similar to Tsoding Daily's project) 
 
 ### Phase 1 - Atlas Rendering
 A single struct named [`Tile`](./wang/tile.go) is responsible for representing a single tile in the project. It `embeds` the `image.Image` type from golang. It's colors are dicided with a single `uint8` called `bltr`.
+The method [`wangFragmentShader`](./wang/tile.go) is analogus to fragment shaders in graphics libraries. It takes in normalized co-ordintaes and outputs a color for that particular coordinte.
 BLTR stands for Bottom, Left, Top, Right. It represents the order in which the bits represent the colors of a tile.
 
 Doing This in a loop for each possible `bltr` results in an atlas of all posible wang tiles (kind of like a sprite sheet.).
