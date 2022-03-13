@@ -37,6 +37,10 @@ func circle(uv linalg.Vec) color.Normalized {
 	return color.Normalized{R: 1.0, G: 1.0, B: 1.0}
 }
 
+// bltr : bottom, left, top, right (order of bits)
+// imagine a uint8 as a stack of bits
+// 1000011 , bitmask &1 = top, bitmask >> 1 = pop, bitmask << 1 = push(0)
+//
 func wang(bltr uint8, uv linalg.Vec) color.Normalized {
 	radius := 0.5
 	colors := []linalg.Vec{
