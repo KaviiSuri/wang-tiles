@@ -1,25 +1,26 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/jpeg"
 	"log"
 	"math"
 	"os"
 
-	"github.com/KaviiSuri/wang-tiles/colors"
+	"github.com/KaviiSuri/wang-tiles/color"
 	"github.com/KaviiSuri/wang-tiles/linalg"
 )
 
 const (
-	height   = 512
-	width    = 512
-	filename = "./output.jpeg"
+	height = 64
+	width  = 64
+	//filename = "./output.jpeg"
 )
 
-func stripes(uv linalg.Vec) colors.Normalized {
+func stripes(uv linalg.Vec) color.Normalized {
 	n := 20.0
-	return colors.Normalized{
+	return color.Normalized{
 		R: (math.Sin(uv.U()*n) + 1.0) / 2,
 		G: (math.Sin((uv.U()+uv.V())*n) + 1.0) / 2,
 		B: (math.Cos(uv.V()*n) + 1.0) / 2,
@@ -27,36 +28,39 @@ func stripes(uv linalg.Vec) colors.Normalized {
 	}
 }
 
-func circle(uv linalg.Vec) colors.Normalized {
+func circle(uv linalg.Vec) color.Normalized {
 	center := linalg.NewVec(0.5, 0.5)
 	radius := .25
 	if center.Sub(uv).Len() <= radius {
-		return colors.Normalized{R: 1.0}
+		return color.Normalized{R: 1.0}
 	}
-	return colors.Normalized{R: 1.0, G: 1.0, B: 1.0}
+	return color.Normalized{R: 1.0, G: 1.0, B: 1.0}
 }
 
-func wang(uv linalg.Vec) colors.Normalized {
+func wang(bltr uint8, uv linalg.Vec) color.Normalized {
 	radius := 0.5
-	centers := []struct {
-		point linalg.Vec
-		color linalg.Vec
-	}{
-		{point: linalg.NewVec(0.5, 0.0), color: linalg.NewVec(1.0, 0.0, 0.0)},
-		{point: linalg.NewVec(0.5, 1.0), color: linalg.NewVec(1.0, 0.0, 1.0)},
-		{point: linalg.NewVec(1.0, 0.5), color: linalg.NewVec(0.0, 1.0, 1.0)},
-		{point: linalg.NewVec(0.0, 0.5), color: linalg.NewVec(1.0, 1.0, 0.0)},
+	colors := []linalg.Vec{
+		linalg.NewVec(1.0, 1.0, 0.0), // 0
+		linalg.NewVec(1.0, 0.0, 1.0), // 1
+	}
+	sides := []linalg.Vec{
+		linalg.NewVec(1.0, 0.5), // RIGHT
+		linalg.NewVec(0.5, 0.0), // TOP
+		linalg.NewVec(0.0, 0.5), // LEFT
+		linalg.NewVec(0.5, 1.0), // BOTTOM
 	}
 	result := linalg.NewSizedVec(3, 0.0)
-	for _, center := range centers {
-		blendFactor := 1.0 - math.Min((center.point.Sub(uv).Len()/radius), 1.0)
-		newClr := result.Add(center.color.Mul(linalg.NewSizedVec(3, blendFactor)))
+	for _, point := range sides {
+		blendFactor := 1.0 - math.Min((point.Sub(uv).Len()/radius), 1.0)
+		clr := colors[bltr&1]
+		newClr := result.Add(clr.Mul(linalg.NewSizedVec(3, blendFactor)))
 		result = linalg.NewSizedVec(3, 1.0).Min(newClr)
+		bltr = bltr >> 1
 	}
-	return colors.NewNormalizedFromVec(result)
+	return color.NewNormalizedFromVec(result)
 }
 
-func main() {
+func SaveWangTile(bltr uint8, filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -67,9 +71,16 @@ func main() {
 		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 			u := float64(x) / float64(width)
 			v := float64(y) / float64(height)
-			clr := wang(linalg.NewVec(u, v))
+			clr := wang(bltr, linalg.NewVec(u, v))
 			img.Set(x, y, clr)
 		}
 	}
 	jpeg.Encode(f, img, nil)
+}
+
+func main() {
+	for bltr := uint8(0); bltr < 16; bltr++ {
+		SaveWangTile(bltr, fmt.Sprintf("./results/tile-%02d.jpeg", bltr))
+		fmt.Printf("Generated Tile %02d\n", bltr)
+	}
 }

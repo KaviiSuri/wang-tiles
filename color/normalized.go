@@ -1,4 +1,4 @@
-package colors
+package color
 
 import "github.com/KaviiSuri/wang-tiles/linalg"
 
