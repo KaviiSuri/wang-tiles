@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"sync"
 
 	"github.com/KaviiSuri/wang-tiles/color"
 	"github.com/KaviiSuri/wang-tiles/linalg"
@@ -45,22 +46,29 @@ func circle(uv linalg.Vec) color.Normalized {
 func generateTileSet() image.Image {
 	atlas := image.NewRGBA(image.Rect(0, 0, tileSetWidth, tileSetHeight))
 	r := image.Rect(0, 0, tileWidth, tileHeight)
+	var wg sync.WaitGroup
 	for bltr := uint8(0); bltr < 16; bltr++ {
-		img := wang.NewTile(bltr, tileWidth, tileHeight)
-		translateBy := image.Point{
-			int(bltr%tileSetNumTilesH) * tileWidth,
-			int(bltr/tileSetNumTilesH) * tileHeight,
-		}
-		draw.Draw(
-			atlas,
-			r.Add(translateBy),
-			img,
-			image.Point{},
-			draw.Src,
-		)
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, bltr uint8) {
+			defer wg.Done()
+			img := wang.NewTile(bltr, tileWidth, tileHeight)
+			translateBy := image.Point{
+				int(bltr%tileSetNumTilesH) * tileWidth,
+				int(bltr/tileSetNumTilesH) * tileHeight,
+			}
+			draw.Draw(
+				atlas,
+				r.Add(translateBy),
+				img,
+				image.Point{},
+				draw.Src,
+			)
 
-		fmt.Printf("Generated Tile %02d\n", bltr)
+			fmt.Printf("Generated Tile %02d\n", bltr)
+		}(&wg, bltr)
 	}
+
+	wg.Wait()
 	return atlas
 }
 
