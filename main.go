@@ -7,7 +7,7 @@ import (
 	"math"
 	"os"
 
-	"github.com/KaviiSuri/wang-tiles/internal"
+	"github.com/KaviiSuri/wang-tiles/colors"
 	"github.com/KaviiSuri/wang-tiles/linalg"
 )
 
@@ -17,9 +17,9 @@ const (
 	filename = "./output.jpeg"
 )
 
-func stripes(uv linalg.Vec) internal.NormalizedColor {
+func stripes(uv linalg.Vec) colors.Normalized {
 	n := 20.0
-	return internal.NormalizedColor{
+	return colors.Normalized{
 		R: (math.Sin(uv.U()*n) + 1.0) / 2,
 		G: (math.Sin((uv.U()+uv.V())*n) + 1.0) / 2,
 		B: (math.Cos(uv.V()*n) + 1.0) / 2,
@@ -27,16 +27,16 @@ func stripes(uv linalg.Vec) internal.NormalizedColor {
 	}
 }
 
-func circle(uv linalg.Vec) internal.NormalizedColor {
+func circle(uv linalg.Vec) colors.Normalized {
 	center := linalg.NewVec(0.5, 0.5)
 	radius := .25
 	if center.Sub(uv).Len() <= radius {
-		return internal.NormalizedColor{R: 1.0}
+		return colors.Normalized{R: 1.0}
 	}
-	return internal.NormalizedColor{R: 1.0, G: 1.0, B: 1.0}
+	return colors.Normalized{R: 1.0, G: 1.0, B: 1.0}
 }
 
-func wang(uv linalg.Vec) internal.NormalizedColor {
+func wang(uv linalg.Vec) colors.Normalized {
 	radius := 0.5
 	centers := []struct {
 		point linalg.Vec
@@ -53,7 +53,7 @@ func wang(uv linalg.Vec) internal.NormalizedColor {
 		newClr := result.Add(center.color.Mul(linalg.NewSizedVec(3, blendFactor)))
 		result = linalg.NewSizedVec(3, 1.0).Min(newClr)
 	}
-	return internal.NewNormalizedColorFromVec(result)
+	return colors.NewNormalizedFromVec(result)
 }
 
 func main() {
