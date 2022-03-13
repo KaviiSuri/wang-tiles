@@ -10,7 +10,7 @@ func Add(v, o Vec) Vec {
 
 func Sub(v, o Vec) Vec {
 	return NewFromEachPair(v, o, func(a, b float64) float64 {
-		return a + b
+		return a - b
 	})
 }
 func Mul(v, o Vec) Vec {
