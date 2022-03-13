@@ -43,18 +43,25 @@ func NewSizedVec(size int, value float64) Vec {
 	}
 }
 
-// Construct A New Vector from Pair of vectors by applying the given argument `f` on each pair
-func NewFromEachPair(v Vec, o Vec, f func(a, b float64) float64) Vec {
-	checkEqualSize(v, o)
+// Map iterates through a vector and applies a function to it
+func Map(v Vec, f func(a float64, i int) float64) Vec {
 	values := []float64{}
 	for i, val := range v.Values {
-		values = append(values, f(val, o.Values[i]))
+		values = append(values, f(val, i))
 	}
 
 	return Vec{
 		Values: values,
 		Size:   v.Size,
 	}
+}
+
+// Construct A New Vector from Pair of vectors by applying the given argument `f` on each pair
+func NewFromEachPair(v Vec, o Vec, f func(a, b float64) float64) Vec {
+	checkEqualSize(v, o)
+	return Map(v, func(a float64, i int) float64 {
+		return f(a, o.Values[i])
+	})
 }
 
 // Functions
@@ -102,9 +109,19 @@ func Min(v, o Vec) Vec {
 	})
 }
 
-func checkEqualSize(v, o Vec) {
-	if v.Size != o.Size {
-		log.Fatalf("Vectors Should be of the same size: %v != %v", v.Size, o.Size)
+func Lerp(v, o, t Vec) Vec {
+	checkEqualSize(v, o)
+	return Map(v, func(a float64, i int) float64 {
+		return a + (o.Values[i]-a)*t.Values[i]
+	})
+}
+
+func checkEqualSize(vectors ...Vec) {
+	prev := vectors[0]
+	for i := 1; i < len(vectors); i++ {
+		if prev.Size != vectors[i].Size {
+			log.Fatalf("Vectors Should be of the same size: %v != %v", prev.Size, vectors[i].Size)
+		}
 	}
 }
 
