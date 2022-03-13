@@ -31,7 +31,7 @@ func stripes(uv linalg.Vec) color.Normalized {
 func circle(uv linalg.Vec) color.Normalized {
 	center := linalg.NewVec(0.5, 0.5)
 	radius := .25
-	if center.Sub(uv).Len() <= radius {
+	if linalg.Sub(center, uv).Len() <= radius {
 		return color.Normalized{R: 1.0}
 	}
 	return color.Normalized{R: 1.0, G: 1.0, B: 1.0}
@@ -55,10 +55,10 @@ func wang(bltr uint8, uv linalg.Vec) color.Normalized {
 	}
 	result := linalg.NewSizedVec(3, 0.0)
 	for _, point := range sides {
-		blendFactor := 1.0 - math.Min((point.Sub(uv).Len()/radius), 1.0)
+		blendFactor := 1.0 - math.Min((linalg.Sub(point, uv).Len()/radius), 1.0)
 		clr := colors[bltr&1]
-		newClr := result.Add(clr.Mul(linalg.NewSizedVec(3, blendFactor)))
-		result = linalg.NewSizedVec(3, 1.0).Min(newClr)
+		newClr := linalg.Add(result, linalg.Mul(clr, linalg.NewSizedVec(3, blendFactor)))
+		result = linalg.Min(linalg.NewSizedVec(3, 1.0), newClr)
 		bltr = bltr >> 1
 	}
 	return color.NewNormalizedFromVec(result)

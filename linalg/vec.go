@@ -11,6 +11,18 @@ type Vec struct {
 	Values []float64
 }
 
+// Methods
+
+func (v Vec) Len() float64 {
+	result := 0.0
+	for _, val := range v.Values {
+		result += val * val
+	}
+	return math.Sqrt(result)
+}
+
+// Contructors
+
 // Constructs A New Vector From Arguments
 func NewVec(values ...float64) Vec {
 	return Vec{
@@ -32,8 +44,8 @@ func NewSizedVec(size int, value float64) Vec {
 }
 
 // Construct A New Vector from Pair of vectors by applying the given argument `f` on each pair
-func (v Vec) NewFromEachPair(o Vec, f func(a, b float64) float64) Vec {
-	v.checkEqualSize(o)
+func NewFromEachPair(v Vec, o Vec, f func(a, b float64) float64) Vec {
+	checkEqualSize(v, o)
 	values := []float64{}
 	for i, val := range v.Values {
 		values = append(values, f(val, o.Values[i]))
@@ -45,32 +57,33 @@ func (v Vec) NewFromEachPair(o Vec, f func(a, b float64) float64) Vec {
 	}
 }
 
-func (v Vec) Add(o Vec) Vec {
-	return v.NewFromEachPair(o, func(a, b float64) float64 {
+// Functions
+
+func Add(v, o Vec) Vec {
+	return NewFromEachPair(v, o, func(a, b float64) float64 {
 		return a + b
 	})
 }
 
-func (v Vec) Sub(o Vec) Vec {
-	return v.NewFromEachPair(o, func(a, b float64) float64 {
-		return a - b
+func Sub(v, o Vec) Vec {
+	return NewFromEachPair(v, o, func(a, b float64) float64 {
+		return a + b
 	})
 }
-
-func (v Vec) Mul(o Vec) Vec {
-	return v.NewFromEachPair(o, func(a, b float64) float64 {
+func Mul(v, o Vec) Vec {
+	return NewFromEachPair(v, o, func(a, b float64) float64 {
 		return a * b
 	})
 }
 
-func (v Vec) Divide(o Vec) Vec {
-	return v.NewFromEachPair(o, func(a, b float64) float64 {
+func Divide(v, o Vec) Vec {
+	return NewFromEachPair(v, o, func(a, b float64) float64 {
 		return a / b
 	})
 }
 
-func (v Vec) Max(o Vec) Vec {
-	return v.NewFromEachPair(o, func(a, b float64) float64 {
+func Max(v, o Vec) Vec {
+	return NewFromEachPair(v, o, func(a, b float64) float64 {
 		if a > b {
 			return a
 		} else {
@@ -79,8 +92,8 @@ func (v Vec) Max(o Vec) Vec {
 	})
 }
 
-func (v Vec) Min(o Vec) Vec {
-	return v.NewFromEachPair(o, func(a, b float64) float64 {
+func Min(v, o Vec) Vec {
+	return NewFromEachPair(v, o, func(a, b float64) float64 {
 		if a < b {
 			return a
 		} else {
@@ -89,12 +102,10 @@ func (v Vec) Min(o Vec) Vec {
 	})
 }
 
-func (v Vec) Len() float64 {
-	result := 0.0
-	for _, val := range v.Values {
-		result += val * val
+func checkEqualSize(v, o Vec) {
+	if v.Size != o.Size {
+		log.Fatalf("Vectors Should be of the same size: %v != %v", v.Size, o.Size)
 	}
-	return math.Sqrt(result)
 }
 
 // Accessors Aliases
@@ -127,10 +138,4 @@ func (v Vec) B() float64 {
 }
 func (v Vec) A() float64 {
 	return v.Values[3]
-}
-
-func (v Vec) checkEqualSize(o Vec) {
-	if v.Size != o.Size {
-		log.Fatalf("Vectors Should be of the same size: %v != %v", v.Size, o.Size)
-	}
 }
