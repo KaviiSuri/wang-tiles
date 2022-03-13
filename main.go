@@ -16,24 +16,43 @@ const (
 	filename = "./output.jpeg"
 )
 
-func stripes(u, v float64) utils.NormalizedColor {
+func stripes(uv utils.Vec) utils.NormalizedColor {
 	n := 20.0
 	return utils.NormalizedColor{
-		R: (math.Sin(u*n) + 1.0) / 2,
-		G: (math.Sin((u+v)*n) + 1.0) / 2,
-		B: (math.Cos(v*n) + 1.0) / 2,
+		R: (math.Sin(uv.U()*n) + 1.0) / 2,
+		G: (math.Sin((uv.U()+uv.V())*n) + 1.0) / 2,
+		B: (math.Cos(uv.V()*n) + 1.0) / 2,
 		A: 0.0,
 	}
 }
 
-func circles(uv utils.Vec2) utils.NormalizedColor {
-	center := utils.Vec2{X: 0.5, Y: 0.5}
-	diff := center.Sub(&uv)
+func circle(uv utils.Vec) utils.NormalizedColor {
+	center := utils.NewVec(0.5, 0.5)
 	radius := .25
-	if math.Pow(diff.Len(), 2) <= radius*radius {
+	if center.Sub(uv).Len() <= radius {
 		return utils.NormalizedColor{R: 1.0}
 	}
 	return utils.NormalizedColor{R: 1.0, G: 1.0, B: 1.0}
+}
+
+func wang(uv utils.Vec) utils.NormalizedColor {
+	radius := 0.5
+	centers := []struct {
+		point utils.Vec
+		color utils.Vec
+	}{
+		{point: utils.NewVec(0.5, 0.0), color: utils.NewVec(1.0, 0.0, 0.0)},
+		{point: utils.NewVec(0.5, 1.0), color: utils.NewVec(1.0, 0.0, 1.0)},
+		{point: utils.NewVec(1.0, 0.5), color: utils.NewVec(0.0, 1.0, 1.0)},
+		{point: utils.NewVec(0.0, 0.5), color: utils.NewVec(1.0, 1.0, 0.0)},
+	}
+	result := utils.NewSizedVec(3, 0.0)
+	for _, center := range centers {
+		blendFactor := 1.0 - math.Min((center.point.Sub(uv).Len()/radius), 1.0)
+		newClr := result.Add(center.color.Mul(utils.NewSizedVec(3, blendFactor)))
+		result = utils.NewSizedVec(3, 1.0).Min(newClr)
+	}
+	return utils.NewNormalizedColorFromVec(result)
 }
 
 func main() {
@@ -47,7 +66,7 @@ func main() {
 		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 			u := float64(x) / float64(width)
 			v := float64(y) / float64(height)
-			clr := circles(utils.Vec2{X: u, Y: v})
+			clr := wang(utils.NewVec(u, v))
 			img.Set(x, y, clr)
 		}
 	}
