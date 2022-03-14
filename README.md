@@ -12,6 +12,12 @@ These tiles are stacked together with some specific rules.
 
 This leads to very interesting patterns and visualisations.
 
+## Usage
+```console
+go run main.go {output-filename}
+```
+`output-filename` = must be a `jpeg`, default="./temp/atlas.jpeg"
+
 ## Goals
 - To learn about procedural generation using wang-tiles. 
 - To learn about GoLang's idiomatic way of doing things and exploring multiple solutions to the same problem.
@@ -26,6 +32,7 @@ The method [`wangFragmentShader`](./wang/tile.go) is analogus to fragment shader
 BLTR stands for Bottom, Left, Top, Right. It represents the order in which the bits represent the colors of a tile.
 
 Doing This in a loop for each possible `bltr` results in an atlas of all posible wang tiles (kind of like a sprite sheet.).
+
 ![](./results/atlas.jpeg)
 
 #### Things I learnt

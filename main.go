@@ -43,6 +43,7 @@ func circle(uv linalg.Vec) color.Normalized {
 	return color.Normalized{R: 1.0, G: 1.0, B: 1.0}
 }
 
+// TODO: Maybe extract this logic to an `Atlas` or `Grid` struct
 func generateTileSet() image.Image {
 	atlas := image.NewRGBA(image.Rect(0, 0, tileSetWidth, tileSetHeight))
 	r := image.Rect(0, 0, tileWidth, tileHeight)
@@ -73,7 +74,11 @@ func generateTileSet() image.Image {
 }
 
 func main() {
-	f, err := os.Create("./results/atlas.jpeg")
+	filename := "./temp/atlas.jpeg"
+	if len(os.Args) > 1 {
+		filename = os.Args[1]
+	}
+	f, err := os.Create(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
