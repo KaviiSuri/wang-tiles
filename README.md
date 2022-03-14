@@ -11,6 +11,11 @@ These tiles are stacked together with some specific rules.
 - All cells of the grid are filled, there is no overloap or empty cell.
 
 This leads to very interesting patterns and visualisations.
+### Coming Up!
+
+![Grid](./results/grid-maze.jpeg)
+![Grid](./results/grid-bokeh.jpeg)
+![Grid](./results/grid-triangles.jpeg)
 
 ## Usage
 ```console
