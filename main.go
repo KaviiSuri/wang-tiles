@@ -14,8 +14,8 @@ import (
 const (
 	tileHeight    = 64
 	tileWidth     = 64
-	widthInTiles  = 100
-	heightInTiles = 50
+	widthInTiles  = 13
+	heightInTiles = 10
 	tileSetHeight = tileHeight * widthInTiles
 	tileSetWidth  = tileWidth * heightInTiles
 )
