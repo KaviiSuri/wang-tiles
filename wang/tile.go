@@ -37,8 +37,8 @@ func NewTile(bltr uint8, tileWidth, tileHeight int) Tile {
 func wangFragmentShader(bltr uint8, uv linalg.Vec) color.Normalized {
 	radius := 0.5
 	colors := []linalg.Vec{
-		linalg.NewVec(1.0, 0.0, 0.0), // 0
-		linalg.NewVec(0.0, 1.0, 1.0), // 1
+		linalg.NewVec(0.0, 0.0, 0.0), // 0
+		linalg.NewVec(1.0, 1.0, 1.0), // 1
 	}
 	sides := []linalg.Vec{
 		linalg.NewVec(1.0, 0.5), // RIGHT
