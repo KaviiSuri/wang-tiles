@@ -8,32 +8,6 @@ import (
 )
 
 func NewWangTileSet(tileWidth, tileHeight int) []image.Image {
-	//atlas := image.NewRGBA(image.Rect(0, 0, widthInTiles*tileWidth, heightInTiles*tileHeight))
-	//r := image.Rect(0, 0, tileWidth, tileHeight)
-	//var wg sync.WaitGroup
-	//for bltr := uint8(0); bltr < 16; bltr++ {
-	//wg.Add(1)
-	//go func(wg *sync.WaitGroup, bltr uint8) {
-	//defer wg.Done()
-	//img := NewTile(bltr, tileWidth, tileHeight)
-	//translateBy := image.Point{
-	//int(bltr%uint8(widthInTiles)) * tileWidth,
-	//int(bltr/uint8(widthInTiles)) * tileHeight,
-	//}
-	//draw.Draw(
-	//atlas,
-	//r.Add(translateBy),
-	//img,
-	//image.Point{},
-	//draw.Src,
-	//)
-
-	//fmt.Printf("Generated Tile %02d\n", bltr)
-	//}(&wg, bltr)
-	//}
-
-	//wg.Wait()
-
 	atlas := make([]image.Image, 16)
 	var wg sync.WaitGroup
 	for bltr := uint8(0); bltr < 16; bltr++ {
@@ -65,35 +39,31 @@ func NewWangGrid(tileSet []image.Image, widthInTiles, heightInTiles, tileWidth, 
 	// +   +   +
 	bltrs[0][0] = RandomBLTRWithConstraint(0, IGNORE_ALL)
 	for c := 1; c < widthInTiles; c++ {
-		bltrs[0][c] = RandomBLTRWithConstraint(bltrs[0][c-1], CONSIDER_L)
+		bltrs[0][c] = RandomBLTRWithConstraint((bltrs[0][c-1]&15)<<2, CONSIDER_L)
 	}
 
 	for r := 1; r < heightInTiles; r++ {
-		bltrs[r][0] = RandomBLTRWithConstraint(bltrs[r-1][0], CONSIDER_T)
+		bltrs[r][0] = RandomBLTRWithConstraint((bltrs[r-1][0]&15)>>2, CONSIDER_T)
 	}
 
 	for r := 1; r < heightInTiles; r++ {
 		for c := 1; c < widthInTiles; c++ {
-			values := (bltrs[r-1][c] & CONSIDER_T) | (bltrs[r][c-1] & CONSIDER_L)
+			values := ((bltrs[r-1][c] & 15) >> 2) | ((bltrs[r][c-1] & 15) << 2)
 			bltrs[r][c] = RandomBLTRWithConstraint(values, CONSIDER_L|CONSIDER_T)
 		}
 	}
+
+	fmt.Println(bltrs)
 
 	grid := NewGridFromBLTRS(bltrs, tileSet, widthInTiles, heightInTiles, tileWidth, tileHeight)
 	return grid
 }
 
 const (
-	CONSIDER_B = uint8(1 << iota)
-	CONSIDER_L
+	CONSIDER_R = uint8(1 << iota)
 	CONSIDER_T
-	CONSIDER_R
-)
-const (
-	IGNORE_B = uint8(0 << iota)
-	IGNORE_L
-	IGNORE_T
-	IGNORE_R
+	CONSIDER_L
+	CONSIDER_B
 )
 
 const (

@@ -14,8 +14,8 @@ import (
 const (
 	tileHeight    = 64
 	tileWidth     = 64
-	widthInTiles  = 80
-	heightInTiles = 40
+	widthInTiles  = 8
+	heightInTiles = 4
 	tileSetHeight = tileHeight * widthInTiles
 	tileSetWidth  = tileWidth * heightInTiles
 )
@@ -38,8 +38,6 @@ func circle(uv linalg.Vec) color.Normalized {
 	}
 	return color.Normalized{R: 1.0, G: 1.0, B: 1.0}
 }
-
-// TODO: Maybe extract this logic to an `Atlas` or `Grid` struct
 
 func main() {
 	filename := "./temp/grid.jpeg"
