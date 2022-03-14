@@ -79,8 +79,6 @@ func NewWangGrid(tileSet []image.Image, widthInTiles, heightInTiles, tileWidth, 
 		}
 	}
 
-	fmt.Println(bltrs)
-
 	grid := NewGridFromBLTRS(bltrs, tileSet, widthInTiles, heightInTiles, tileWidth, tileHeight)
 	return grid
 }
