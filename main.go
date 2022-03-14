@@ -1,14 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"image"
-	"image/draw"
 	"image/jpeg"
 	"log"
 	"math"
 	"os"
-	"sync"
 
 	"github.com/KaviiSuri/wang-tiles/color"
 	"github.com/KaviiSuri/wang-tiles/linalg"
@@ -16,12 +12,12 @@ import (
 )
 
 const (
-	tileHeight       = 64
-	tileWidth        = 64
-	tileSetNumTilesH = 4
-	tileSetNumTilesV = 4
-	tileSetHeight    = tileHeight * tileSetNumTilesH
-	tileSetWidth     = tileWidth * tileSetNumTilesV
+	tileHeight    = 64
+	tileWidth     = 64
+	widthInTiles  = 5
+	heightInTiles = 4
+	tileSetHeight = tileHeight * widthInTiles
+	tileSetWidth  = tileWidth * heightInTiles
 )
 
 func stripes(uv linalg.Vec) color.Normalized {
@@ -44,37 +40,9 @@ func circle(uv linalg.Vec) color.Normalized {
 }
 
 // TODO: Maybe extract this logic to an `Atlas` or `Grid` struct
-func generateTileSet() image.Image {
-	atlas := image.NewRGBA(image.Rect(0, 0, tileSetWidth, tileSetHeight))
-	r := image.Rect(0, 0, tileWidth, tileHeight)
-	var wg sync.WaitGroup
-	for bltr := uint8(0); bltr < 16; bltr++ {
-		wg.Add(1)
-		go func(wg *sync.WaitGroup, bltr uint8) {
-			defer wg.Done()
-			img := wang.NewTile(bltr, tileWidth, tileHeight)
-			translateBy := image.Point{
-				int(bltr%tileSetNumTilesH) * tileWidth,
-				int(bltr/tileSetNumTilesH) * tileHeight,
-			}
-			draw.Draw(
-				atlas,
-				r.Add(translateBy),
-				img,
-				image.Point{},
-				draw.Src,
-			)
-
-			fmt.Printf("Generated Tile %02d\n", bltr)
-		}(&wg, bltr)
-	}
-
-	wg.Wait()
-	return atlas
-}
 
 func main() {
-	filename := "./temp/atlas.jpeg"
+	filename := "./temp/grid.jpeg"
 	if len(os.Args) > 1 {
 		filename = os.Args[1]
 	}
@@ -83,6 +51,14 @@ func main() {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	img := generateTileSet()
+	tileSet := wang.NewWangTileSet(tileWidth, tileHeight)
+	img := wang.NewWangGrid(tileSet, widthInTiles, heightInTiles, tileWidth, tileHeight)
+	//bltrs := [][]uint8{
+	//{0, 1, 2, 3},
+	//{4, 5, 6, 7},
+	//{8, 9, 10, 11},
+	//{12, 13, 14, 15},
+	//}
+	//img := wang.NewGridFromBLTRS(bltrs, tileSet, tileSetNumTilesH, tileSetNumTilesV, tileWidth, tileHeight)
 	jpeg.Encode(f, img, nil)
 }
